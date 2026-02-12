@@ -25,7 +25,7 @@ export const MouseKeyBindings: {
 
 // Point Config
 const PointConfig: { [key in PointType]: PointSpecification } = {
-  [PointType.zonePoint]: {
+  [PointType.regionPoint]: {
     radius: 8,
   },
 };

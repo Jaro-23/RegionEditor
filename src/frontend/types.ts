@@ -6,7 +6,7 @@ enum MouseKey {
 }
 
 enum PointType {
-  zonePoint = 0,
+  regionPoint = 0,
 }
 
 // Structs

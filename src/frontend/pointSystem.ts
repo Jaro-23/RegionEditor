@@ -4,7 +4,6 @@ import { Position } from './types.js';
 
 export class PointSystem {
   private points: { [key: string]: Point };
-  private selectedType: PointType = 0;
   private draggingPoint: Point | undefined = undefined;
 
   constructor() {
@@ -12,18 +11,14 @@ export class PointSystem {
   }
 
   // Managing logic
-  public setCreatedPointType(type: PointType) {
-    this.selectedType = type;
-  }
-
-  public createPoint(pos: Position) {
+  public createPoint(pos: Position, type: PointType) {
     // TODO: Manage unique global id by added client unique iden
     let localIden = 0;
     while (this.formatIden(localIden) in this.points) localIden += 1;
 
     this.points[this.formatIden(localIden)] = new Point(
       pos,
-      PointConfig[this.selectedType].radius,
+      PointConfig[type].radius,
     );
   }
 
