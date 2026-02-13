@@ -19,5 +19,22 @@ type PointSpecification = {
   radius: number;
 };
 
-export type { Position, PointSpecification, MouseKeySpecification };
+type MouseKeyBindings = {
+  createPoint: MouseKeySpecification;
+  movePoint: MouseKeySpecification;
+  removePoint: MouseKeySpecification;
+};
+
+// Other
+type RGB = `rgb(${number},${number},${number})`;
+type RGBA = `rgb(${number},${number},${number},${number})`;
+type Color = RGB | RGBA;
+
+export type {
+  Position,
+  PointSpecification,
+  MouseKeyBindings,
+  MouseKeySpecification,
+  Color,
+};
 export { MouseKey, PointType };

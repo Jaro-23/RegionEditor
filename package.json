@@ -20,7 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "frontend:dev": "tsc -p tsconfig.frontend.json --watch",
     "frontend": "tsc -p tsconfig.frontend.json",
-    "full:start:dev": "npm-run-all --parallel start:dev frontend:dev"
+    "full:dev": "npm-run-all --parallel start:dev frontend:dev"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

@@ -1,12 +1,11 @@
 import { Point } from './point.js';
-import { PointType, PointConfig } from './config.js';
-import { Position } from './types.js';
+import { Position, PointSpecification, PointType } from './types.js';
 
 export class PointSystem {
   private points: { [key: string]: Point };
   private draggingPoint: Point | undefined = undefined;
 
-  constructor() {
+  constructor(private pointConfig: { [key in PointType]: PointSpecification }) {
     this.points = {};
   }
 
@@ -25,7 +24,7 @@ export class PointSystem {
 
     this.points[this.formatIden(localIden)] = new Point(
       pos,
-      PointConfig[type].radius,
+      this.pointConfig[type].radius,
     );
   }
 
