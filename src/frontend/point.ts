@@ -16,4 +16,12 @@ export class Point {
   public setPosition(pos: Position): void {
     this.pos = pos;
   }
+
+  public getPosition(): Position {
+    return this.pos;
+  }
+
+  public getRadius(): number {
+    return this.radius;
+  }
 }

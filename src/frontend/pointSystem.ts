@@ -10,6 +10,13 @@ export class PointSystem {
     this.points = {};
   }
 
+  public mapPoints(func: (point: Point) => void): void {
+    for (const iden in this.points) {
+      const point = this.points[iden];
+      func(point);
+    }
+  }
+
   // Managing logic
   public createPoint(pos: Position, type: PointType) {
     // TODO: Manage unique global id by added client unique iden
