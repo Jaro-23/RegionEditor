@@ -1,6 +1,8 @@
 import { loadImage } from './tools.js';
 import { Point } from './point.js';
 import { PointSystem } from './pointSystem.js';
+import { Region } from './region.js';
+import { RegionManager } from './regionManager.js';
 import { Position, Color } from './types.js';
 
 export class Canvas {
@@ -10,6 +12,7 @@ export class Canvas {
   constructor(
     private canvas: HTMLCanvasElement,
     private pointSystem: PointSystem,
+    private regionManager: RegionManager,
     private backgroundPath: string,
   ) {
     this.context = canvas.getContext('2d') as CanvasRenderingContext2D;
@@ -21,7 +24,7 @@ export class Canvas {
     if (this.background) this.drawBackground();
     else this.loadBackground();
 
-    this.pointSystem.mapPoints((point: Point) => this.drawPoint(point));
+    this.regionManager.foreach((region: Region) => this.drawRegion(region));
   }
 
   public addEvent(
@@ -75,12 +78,42 @@ export class Canvas {
     }
   }
 
-  private drawPoint(point: Point, color: Color = `rgb(0,0,0)`) {
+  private drawPoint(point: Point, color: Color = { r: 0, g: 0, b: 0 }) {
     const pos: Position = point.getPosition();
-    this.context.fillStyle = color;
+    this.context.fillStyle = this.getColorString(color);
     this.context.beginPath();
     this.context.arc(pos.x, pos.y, point.getRadius(), 0, 2 * Math.PI);
     this.context.fill();
+  }
+
+  private drawRegion(region: Region) {
+    // Draw lines
+    const positions: Position[] = [];
+    region.foreachPoint((pointIden: string, color: Color) => {
+      const point = this.pointSystem.getPoint(pointIden);
+      if (!point) return;
+      positions.push(point.getPosition());
+    });
+    this.drawLoop(positions, region.getColor());
+
+    // Draw points
+    region.foreachPoint((pointIden: string, color: Color) => {
+      const point = this.pointSystem.getPoint(pointIden);
+      if (!point) return;
+      this.drawPoint(point, color);
+    });
+  }
+
+  private drawLoop(positions: Position[], color: Color) {
+    if (positions.length == 0) return;
+    this.context.strokeStyle = this.getColorString(color);
+    this.context.lineWidth = 4; // TODO: Make this changeable
+    this.context.beginPath();
+    this.context.moveTo(positions[0].x, positions[0].y);
+    positions.forEach((pos) => this.context.lineTo(pos.x, pos.y));
+    this.context.lineTo(positions[0].x, positions[0].y);
+    this.context.closePath();
+    this.context.stroke();
   }
 
   private loadBackground(): void {
@@ -91,5 +124,17 @@ export class Canvas {
       .catch((error) => {
         console.log(error);
       });
+  }
+
+  private getColorString(
+    color: Color,
+    alpha: number | undefined = undefined,
+  ): string {
+    if (alpha) {
+      return `rgb(${color.r}, ${color.g}, ${color.b}, ${alpha})`;
+    } else if (color.a) {
+      return `rgb(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
+    }
+    return `rgb(${color.r}, ${color.g}, ${color.b})`;
   }
 }

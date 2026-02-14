@@ -1,15 +1,20 @@
 import { Point } from './point.js';
 import { Position, PointSpecification, PointType } from './types.js';
+import { PointSystemWatcher } from './interfaces.js';
 
 export class PointSystem {
   private points: { [key: string]: Point };
   private draggingPoint: Point | undefined = undefined;
+  private forceDragging: boolean = false;
 
-  constructor(private pointConfig: { [key in PointType]: PointSpecification }) {
+  constructor(
+    private pointConfig: { [key in PointType]: PointSpecification },
+    private watchers: { [key in PointType]?: PointSystemWatcher },
+  ) {
     this.points = {};
   }
 
-  public mapPoints(func: (point: Point) => void): void {
+  public foreach(func: (point: Point) => void): void {
     for (const iden in this.points) {
       const point = this.points[iden];
       func(point);
@@ -22,10 +27,16 @@ export class PointSystem {
     let localIden = 0;
     while (this.formatIden(localIden) in this.points) localIden += 1;
 
-    this.points[this.formatIden(localIden)] = new Point(
-      pos,
-      this.pointConfig[type].radius,
-    );
+    const iden = this.formatIden(localIden);
+    this.points[iden] = new Point(pos, this.pointConfig[type].radius);
+
+    const watcher = this.watchers[type];
+    if (watcher) watcher.onPointCreate(iden, this);
+  }
+
+  public getPoint(iden: string): Point | undefined {
+    if (iden in this.points) return this.points[iden];
+    return undefined;
   }
 
   public removePoint(iden: string) {
@@ -42,6 +53,18 @@ export class PointSystem {
   }
 
   // Dragging logic
+  public startForceDrag(iden: string, force: boolean = false) {
+    if (iden in this.points) {
+      this.draggingPoint = this.points[iden];
+      this.forceDragging = force;
+    }
+  }
+
+  public stopForceDrag() {
+    this.draggingPoint = undefined;
+    this.forceDragging = false;
+  }
+
   public startDrag(pos: Position): void {
     for (const iden in this.points) {
       if (this.points[iden].isClicked(pos)) {
@@ -57,7 +80,7 @@ export class PointSystem {
   }
 
   public endDrag(): void {
-    this.draggingPoint = undefined;
+    if (!this.forceDragging) this.draggingPoint = undefined;
   }
 
   // Helpers

@@ -26,9 +26,12 @@ type MouseKeyBindings = {
 };
 
 // Other
-type RGB = `rgb(${number},${number},${number})`;
-type RGBA = `rgb(${number},${number},${number},${number})`;
-type Color = RGB | RGBA;
+type Color = {
+  r: number;
+  g: number;
+  b: number;
+  a?: number;
+};
 
 export type {
   Position,

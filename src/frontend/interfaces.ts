@@ -1,7 +1,7 @@
-import { Point } from './point.js';
+import { PointSystem } from './pointSystem.js';
 
 interface PointSystemWatcher {
-  onPointCreate(iden: string, point: Point): void;
+  onPointCreate(iden: string, pointSystem: PointSystem): void;
   onPointRemove(iden: string): void;
 }
 
