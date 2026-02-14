@@ -3,26 +3,21 @@ import { PointSystem } from './pointSystem.js';
 import { Canvas } from './canvas.js';
 import { EventManager } from './eventManager.js';
 import { ColorDef } from './constants.js';
-import { MouseKey, PointType } from './types.js';
+import {
+  MouseKey,
+  PointType,
+  PointSpecification,
+  MouseKeyBindings,
+} from './types.js';
 
-const regMan = new RegionManager(ColorDef.aqua);
-const pSys = new PointSystem(
-  {
-    [PointType.regionPoint]: {
-      radius: 8,
-    },
+// Config
+const pointConfig: { [key in PointType]: PointSpecification } = {
+  [PointType.regionPoint]: {
+    radius: 8,
   },
-  { [PointType.regionPoint]: regMan },
-);
+};
 
-const canv = new Canvas(
-  <HTMLCanvasElement>document.getElementById('map'),
-  pSys,
-  regMan,
-  'images/map.png',
-);
-
-new EventManager(canv, {
+const mouseInputs: MouseKeyBindings = {
   createPoint: {
     key: MouseKey.left,
     ctrlKey: false,
@@ -35,4 +30,19 @@ new EventManager(canv, {
     key: MouseKey.right,
     ctrlKey: true,
   },
-});
+  stopDrawing: {
+    key: MouseKey.right,
+    ctrlKey: false,
+  },
+};
+
+// Setup
+const regMan = new RegionManager(ColorDef.aqua);
+const pSys = new PointSystem(pointConfig, { [PointType.regionPoint]: regMan });
+const canv = new Canvas(
+  <HTMLCanvasElement>document.getElementById('map'),
+  pSys,
+  regMan,
+  'images/map.png',
+);
+new EventManager(canv, mouseInputs);

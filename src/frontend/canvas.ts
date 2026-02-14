@@ -38,6 +38,10 @@ export class Canvas {
     return this.pointSystem;
   }
 
+  public getRegionManager() {
+    return this.regionManager;
+  }
+
   public getMousePos(event: MouseEvent): Position {
     const rect = this.canvas.getBoundingClientRect();
     const dx = event.clientX - rect.left;
@@ -89,12 +93,15 @@ export class Canvas {
   private drawRegion(region: Region) {
     // Draw lines
     const positions: Position[] = [];
-    region.foreachPoint((pointIden: string, color: Color) => {
+    region.foreachPoint((pointIden: string) => {
       const point = this.pointSystem.getPoint(pointIden);
       if (!point) return;
       positions.push(point.getPosition());
     });
-    this.drawLoop(positions, region.getColor());
+    const color: Color = { ...region.getColor() };
+    this.drawLoop(positions, color);
+    color.a = 0.3; // TODO: Make this changeable
+    this.drawPolygon(positions, color);
 
     // Draw points
     region.foreachPoint((pointIden: string, color: Color) => {
@@ -114,6 +121,17 @@ export class Canvas {
     this.context.lineTo(positions[0].x, positions[0].y);
     this.context.closePath();
     this.context.stroke();
+  }
+
+  private drawPolygon(positions: Position[], color: Color) {
+    if (positions.length == 0) return;
+    this.context.fillStyle = this.getColorString(color);
+    this.context.beginPath();
+    this.context.moveTo(positions[0].x, positions[0].y);
+    positions.forEach((pos) => this.context.lineTo(pos.x, pos.y));
+    this.context.lineTo(positions[0].x, positions[0].y);
+    this.context.closePath();
+    this.context.fill();
   }
 
   private loadBackground(): void {

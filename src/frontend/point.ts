@@ -1,7 +1,8 @@
-import { Position } from './types.js';
+import { Position, PointType } from './types.js';
 
 export class Point {
   constructor(
+    private type: PointType,
     private pos: Position = { x: 0, y: 0 },
     private radius: number = 0,
   ) {}
@@ -23,5 +24,9 @@ export class Point {
 
   public getRadius(): number {
     return this.radius;
+  }
+
+  public getType(): PointType {
+    return this.type;
   }
 }

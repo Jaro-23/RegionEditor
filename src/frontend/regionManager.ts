@@ -42,14 +42,20 @@ export class RegionManager implements PointSystemWatcher {
     }
   }
 
-  public saveRegion(name: string, pointSystem: PointSystem): boolean {
-    if (name in this.regions) return false;
+  public removeGhost(pointSystem: PointSystem) {
+    if (this.ghostPointIden == '') return;
     pointSystem.removePoint(this.ghostPointIden);
+    this.ghostPointIden = '';
+  }
+
+  public saveRegion(name: string, pointSystem: PointSystem): boolean {
+    if (name.length == 0 || name in this.regions) return false;
+    this.removeGhost(pointSystem);
     this.regions[name] = new Region(ColorList[this.colorIndex]);
     this.colorIndex = (this.colorIndex + 1) % ColorList.length;
-    this.drawingRegion.foreachPoint((pointIden: string, color: Color) => {
-      this.regions[name].addPoint(pointIden);
-    });
+    this.drawingRegion.foreachPoint((pointIden: string) =>
+      this.regions[name].addPoint(pointIden),
+    );
     this.drawingRegion.reset();
     return true;
   }

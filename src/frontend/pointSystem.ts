@@ -28,7 +28,7 @@ export class PointSystem {
     while (this.formatIden(localIden) in this.points) localIden += 1;
 
     const iden = this.formatIden(localIden);
-    this.points[iden] = new Point(pos, this.pointConfig[type].radius);
+    this.points[iden] = new Point(type, pos, this.pointConfig[type].radius);
 
     const watcher = this.watchers[type];
     if (watcher) watcher.onPointCreate(iden, this);
@@ -40,7 +40,12 @@ export class PointSystem {
   }
 
   public removePoint(iden: string) {
-    if (iden in this.points) delete this.points[iden];
+    if (!(iden in this.points)) return;
+    const type: PointType = this.points[iden].getType();
+    delete this.points[iden];
+
+    const watcher = this.watchers[type];
+    if (watcher) watcher.onPointRemove(iden);
   }
 
   public removePointByPos(pos: Position): void {

@@ -1,5 +1,6 @@
 import { Canvas } from './canvas.js';
 import { PointSystem } from './pointSystem.js';
+import { RegionManager } from './regionManager.js';
 import {
   Position,
   MouseKeyBindings,
@@ -16,6 +17,7 @@ export class EventManager {
     this.canvas.addEvent('contextmenu', (e) => e.preventDefault());
 
     this.psEvents();
+    this.regionEvents();
   }
 
   private mouseWrapper(
@@ -27,6 +29,23 @@ export class EventManager {
       if (mouseKey.ctrlKey != event.ctrlKey) return;
       callback(event);
     };
+  }
+
+  private regionEvents() {
+    const ps: PointSystem = this.canvas.getPointSystem();
+    const rm: RegionManager = this.canvas.getRegionManager();
+    this.canvas.addEvent(
+      'mousedown',
+      this.mouseWrapper(this.mouseKeyBindings.stopDrawing, () => {
+        ps.stopForceDrag();
+        rm.removeGhost(ps);
+
+        // TODO: Do with proper popup
+        rm.saveRegion('test', ps);
+
+        this.canvas.update();
+      }),
+    );
   }
 
   private psEvents() {

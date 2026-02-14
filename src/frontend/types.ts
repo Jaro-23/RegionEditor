@@ -23,6 +23,7 @@ type MouseKeyBindings = {
   createPoint: MouseKeySpecification;
   movePoint: MouseKeySpecification;
   removePoint: MouseKeySpecification;
+  stopDrawing: MouseKeySpecification;
 };
 
 // Other
