@@ -6,12 +6,16 @@ export class PointSystem {
   private points: { [key: string]: Point };
   private draggingPoint: Point | undefined = undefined;
   private forceDragging: boolean = false;
+  private watchers: { [key in PointType]?: PointSystemWatcher } = {};
 
-  constructor(
-    private pointConfig: { [key in PointType]: PointSpecification },
-    private watchers: { [key in PointType]?: PointSystemWatcher },
-  ) {
+  constructor(private pointConfig: { [key in PointType]: PointSpecification }) {
     this.points = {};
+  }
+
+  public setWatchers(watchers: {
+    [key in PointType]?: PointSystemWatcher;
+  }): void {
+    this.watchers = watchers;
   }
 
   public foreach(func: (point: Point) => void): void {
@@ -51,7 +55,7 @@ export class PointSystem {
   public removePointByPos(pos: Position): void {
     for (const iden in this.points) {
       if (this.points[iden].isClicked(pos)) {
-        this.draggingPoint = this.points[iden];
+        this.removePoint(iden);
         return;
       }
     }
@@ -71,6 +75,7 @@ export class PointSystem {
   }
 
   public startDrag(pos: Position): void {
+    if (this.forceDragging) return;
     for (const iden in this.points) {
       if (this.points[iden].isClicked(pos)) {
         this.draggingPoint = this.points[iden];

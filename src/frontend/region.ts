@@ -1,9 +1,15 @@
-import { Color } from './types.js';
+import { Point } from './point.js';
+import { PointSystem } from './pointSystem.js';
+import { Position, Color } from './types.js';
 
 export class Region {
   private pointsIden: string[] = [];
 
-  constructor(private color: Color) {}
+  constructor(
+    private color: Color,
+    private pointSystem: PointSystem,
+    private edgeWidth: number,
+  ) {}
 
   public getColor() {
     return this.color;
@@ -39,5 +45,36 @@ export class Region {
 
   public reset() {
     this.pointsIden = [];
+  }
+
+  public onEdge(pos: Position): number {
+    for (let idenIndex = 0; idenIndex < this.pointsIden.length; idenIndex++) {
+      const p1: Point | undefined = this.pointSystem.getPoint(
+        this.pointsIden[idenIndex],
+      );
+      if (!p1) continue;
+      const pos1: Position = p1.getPosition();
+      const p2: Point | undefined = this.pointSystem.getPoint(
+        this.pointsIden[(idenIndex + 1) % this.pointsIden.length],
+      );
+      if (!p2) continue;
+      const pos2: Position = p2.getPosition();
+
+      const dx = pos2.x - pos1.x;
+      const dy = pos2.y - pos1.y;
+
+      const t =
+        ((pos.x - pos1.x) * dx + (pos.y - pos1.y) * dy) / (dx * dx + dy * dy);
+      const tClamped = Math.max(0, Math.min(1, t));
+
+      const closestX = pos1.x + tClamped * dx;
+      const closestY = pos1.y + tClamped * dy;
+      const dist = Math.sqrt((pos.x - closestX) ** 2 + (pos.y - closestY) ** 2);
+
+      if (dist < this.edgeWidth) {
+        return idenIndex;
+      }
+    }
+    return -1;
   }
 }

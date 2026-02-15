@@ -40,8 +40,16 @@ export class EventManager {
     this.canvas.addEvent(
       'mousedown',
       this.mouseWrapper(this.mouseKeyBindings.stopDrawing, () => {
+        if (!rm.isDrawing()) return;
+
         ps.stopForceDrag();
-        rm.removeGhost(ps);
+        rm.removeGhost();
+        this.canvas.update();
+
+        if (!rm.canSave()) {
+          rm.resetDrawing();
+          return;
+        }
 
         const popup: PopupElement = document.getElementById(
           'global-popup',
@@ -57,7 +65,7 @@ export class EventManager {
               },
             },
             (fields: CustomFields) => {
-              if (rm.saveRegion(fields.name.value as string, ps)) {
+              if (rm.saveRegion(fields.name.value as string)) {
                 this.canvas.update();
                 popup.hide();
               } else
@@ -66,7 +74,7 @@ export class EventManager {
                 );
             },
             () => {
-              rm.resetDrawing(ps);
+              rm.resetDrawing();
               this.canvas.update();
               popup.hide();
             },

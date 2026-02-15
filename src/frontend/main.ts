@@ -11,6 +11,8 @@ import {
 } from './types.js';
 
 // Config
+const regionEdgeWidth: number = 4;
+
 const pointConfig: { [key in PointType]: PointSpecification } = {
   [PointType.regionPoint]: {
     radius: 8,
@@ -37,8 +39,10 @@ const mouseInputs: MouseKeyBindings = {
 };
 
 // Setup
-const regMan = new RegionManager(ColorDef.aqua);
-const pSys = new PointSystem(pointConfig, { [PointType.regionPoint]: regMan });
+const pSys = new PointSystem(pointConfig);
+const regMan = new RegionManager(pSys, ColorDef.aqua, regionEdgeWidth);
+
+pSys.setWatchers({ [PointType.regionPoint]: regMan });
 const canv = new Canvas(
   <HTMLCanvasElement>document.getElementById('map'),
   pSys,

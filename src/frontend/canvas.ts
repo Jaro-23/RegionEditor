@@ -24,7 +24,9 @@ export class Canvas {
     if (this.background) this.drawBackground();
     else this.loadBackground();
 
-    this.regionManager.foreach((region: Region) => this.drawRegion(region));
+    this.regionManager.foreach((region: Region) =>
+      this.drawRegion(region, this.regionManager.getEdgeWidth()),
+    );
   }
 
   public addEvent(
@@ -90,7 +92,7 @@ export class Canvas {
     this.context.fill();
   }
 
-  private drawRegion(region: Region) {
+  private drawRegion(region: Region, edgeThickness: number) {
     // Draw lines
     const positions: Position[] = [];
     region.foreachPoint((pointIden: string) => {
@@ -99,7 +101,7 @@ export class Canvas {
       positions.push(point.getPosition());
     });
     const color: Color = { ...region.getColor() };
-    this.drawLoop(positions, color);
+    this.drawLoop(positions, color, edgeThickness);
     color.a = 0.3; // TODO: Make this changeable
     this.drawPolygon(positions, color);
 
@@ -111,10 +113,10 @@ export class Canvas {
     });
   }
 
-  private drawLoop(positions: Position[], color: Color) {
+  private drawLoop(positions: Position[], color: Color, thickness: number) {
     if (positions.length == 0) return;
     this.context.strokeStyle = this.getColorString(color);
-    this.context.lineWidth = 4; // TODO: Make this changeable
+    this.context.lineWidth = thickness;
     this.context.beginPath();
     this.context.moveTo(positions[0].x, positions[0].y);
     positions.forEach((pos) => this.context.lineTo(pos.x, pos.y));

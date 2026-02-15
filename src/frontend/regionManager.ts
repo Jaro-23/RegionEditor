@@ -10,8 +10,20 @@ export class RegionManager implements PointSystemWatcher {
   private ghostPointIden: string = '';
   private colorIndex: number = 0;
 
-  constructor(drawColor: Color) {
-    this.drawingRegion = new Region(drawColor);
+  constructor(
+    private pointSystem: PointSystem,
+    drawColor: Color,
+    private edgeWidth: number,
+  ) {
+    this.drawingRegion = new Region(
+      drawColor,
+      this.pointSystem,
+      this.edgeWidth,
+    );
+  }
+
+  public getEdgeWidth() {
+    return this.edgeWidth;
   }
 
   public foreach(func: (region: Region) => void): void {
@@ -21,14 +33,20 @@ export class RegionManager implements PointSystemWatcher {
     }
   }
 
-  public onPointCreate(iden: string, pointSystem: PointSystem): void {
+  public onPointCreate(iden: string): void {
+    // Try to add edge on the line, only id not currently drawing a new region
+    // if (this.drawingRegion.getNumPoints() == 0) {
+    //   return;
+    // }
+
+    // Not on edge, so start new region
     if (this.drawingRegion.getNumPoints() == 0) {
       this.drawingRegion.addPoint(iden);
-      pointSystem.startForceDrag(iden, true);
+      this.pointSystem.startForceDrag(iden, true);
       this.ghostPointIden = iden;
-      const point = pointSystem.getPoint(iden);
+      const point = this.pointSystem.getPoint(iden);
       if (!point) return; // Should never be undefined but compiler complians
-      pointSystem.createPoint(point.getPosition(), PointType.regionPoint);
+      this.pointSystem.createPoint(point.getPosition(), PointType.regionPoint);
       return;
     }
     this.drawingRegion.addPoint(iden, -1);
@@ -42,16 +60,21 @@ export class RegionManager implements PointSystemWatcher {
     }
   }
 
-  public removeGhost(pointSystem: PointSystem) {
+  public removeGhost() {
     if (this.ghostPointIden == '') return;
-    pointSystem.removePoint(this.ghostPointIden);
+    this.pointSystem.removePoint(this.ghostPointIden);
     this.ghostPointIden = '';
   }
 
-  public saveRegion(name: string, pointSystem: PointSystem): boolean {
-    if (name.length == 0 || name in this.regions) return false;
-    this.removeGhost(pointSystem);
-    this.regions[name] = new Region(ColorList[this.colorIndex]);
+  public saveRegion(name: string): boolean {
+    if (!this.canSave() || name.length == 0 || name in this.regions)
+      return false;
+    this.removeGhost();
+    this.regions[name] = new Region(
+      ColorList[this.colorIndex],
+      this.pointSystem,
+      this.edgeWidth,
+    );
     this.colorIndex = (this.colorIndex + 1) % ColorList.length;
     this.drawingRegion.foreachPoint((pointIden: string) =>
       this.regions[name].addPoint(pointIden),
@@ -60,8 +83,19 @@ export class RegionManager implements PointSystemWatcher {
     return true;
   }
 
-  public resetDrawing(pointSystem: PointSystem) {
-    this.removeGhost(pointSystem);
+  public canSave(): boolean {
+    return (
+      this.drawingRegion.getNumPoints() >=
+      3 + (this.ghostPointIden != '' ? 1 : 0)
+    ); // Should have at least 3 points + ghost point = 4 points
+  }
+
+  public isDrawing(): boolean {
+    return this.drawingRegion.getNumPoints() != 0;
+  }
+
+  public resetDrawing() {
+    this.removeGhost();
     this.drawingRegion.reset();
   }
 }
