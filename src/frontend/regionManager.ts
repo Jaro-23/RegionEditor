@@ -1,7 +1,7 @@
 import { PointSystemWatcher } from './interfaces.js';
 import { Region } from './region.js';
 import { PointSystem } from './pointSystem.js';
-import { Color, PointType } from './types.js';
+import { Position, Color, PointType } from './types.js';
 import { ColorList } from './constants.js';
 
 export class RegionManager implements PointSystemWatcher {
@@ -33,14 +33,27 @@ export class RegionManager implements PointSystemWatcher {
     }
   }
 
-  public onPointCreate(iden: string): void {
+  public onPointCreate(iden: string, pos: Position): void {
     // Try to add edge on the line, only id not currently drawing a new region
-    // if (this.drawingRegion.getNumPoints() == 0) {
-    //   return;
-    // }
+    if (!this.isDrawing()) {
+      for (const name in this.regions) {
+        const region: Region = this.regions[name];
+        const index = region.clickedOnEdge(pos);
+        if (index >= 0) {
+          console.log(index);
+          const iden = this.pointSystem.createPoint(
+            pos,
+            PointType.regionPoint,
+            true,
+          );
+          // +1 because the given index represents the line from index to index+1
+          // We want to add the point in between
+          region.addPoint(iden, index + 1);
+          return;
+        }
+      }
 
-    // Not on edge, so start new region
-    if (this.drawingRegion.getNumPoints() == 0) {
+      // Not on edge, so start new region
       this.drawingRegion.addPoint(iden);
       this.pointSystem.startForceDrag(iden, true);
       this.ghostPointIden = iden;

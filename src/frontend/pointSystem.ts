@@ -26,7 +26,11 @@ export class PointSystem {
   }
 
   // Managing logic
-  public createPoint(pos: Position, type: PointType) {
+  public createPoint(
+    pos: Position,
+    type: PointType,
+    skipWatcher: boolean = false,
+  ): string {
     // TODO: Manage unique global id by added client unique iden
     let localIden = 0;
     while (this.formatIden(localIden) in this.points) localIden += 1;
@@ -35,7 +39,8 @@ export class PointSystem {
     this.points[iden] = new Point(type, pos, this.pointConfig[type].radius);
 
     const watcher = this.watchers[type];
-    if (watcher) watcher.onPointCreate(iden, this);
+    if (!skipWatcher && watcher) watcher.onPointCreate(iden, pos);
+    return iden;
   }
 
   public getPoint(iden: string): Point | undefined {

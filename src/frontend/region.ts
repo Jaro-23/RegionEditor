@@ -47,7 +47,7 @@ export class Region {
     this.pointsIden = [];
   }
 
-  public onEdge(pos: Position): number {
+  public clickedOnEdge(pos: Position): number {
     for (let idenIndex = 0; idenIndex < this.pointsIden.length; idenIndex++) {
       const p1: Point | undefined = this.pointSystem.getPoint(
         this.pointsIden[idenIndex],
