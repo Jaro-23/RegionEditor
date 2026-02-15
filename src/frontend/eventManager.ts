@@ -7,8 +7,8 @@ import {
   MouseKeyBindings,
   MouseKeySpecification,
   PointType,
-  PopupDefType,
-  PopupStruct,
+  CustomFields,
+  CustomFieldType,
 } from './types.js';
 
 export class EventManager {
@@ -17,7 +17,7 @@ export class EventManager {
     private mouseKeyBindings: MouseKeyBindings,
   ) {
     // Disable the context menu
-    this.canvas.addEvent('contextmenu', (e) => e.preventDefault());
+    document.addEventListener('contextmenu', (e) => e.preventDefault());
 
     this.psEvents();
     this.regionEvents();
@@ -49,26 +49,30 @@ export class EventManager {
         if (popup) {
           popup.loadFromStruct(
             'Name the new region',
-            [
-              {
-                fieldName: 'name',
+            {
+              name: {
                 value: '',
                 displayName: 'Name',
-                type: PopupDefType.string,
+                type: CustomFieldType.string,
               },
-            ],
-            (data: PopupStruct) => {
-              if (rm.saveRegion(data.name, ps)) popup.hide();
-              else
+            },
+            (fields: CustomFields) => {
+              if (rm.saveRegion(fields.name.value as string, ps)) {
+                this.canvas.update();
+                popup.hide();
+              } else
                 popup.showError(
-                  `Already a region with the name: "${data.name} "`,
+                  `Already a region with the name: "${fields.name.value} "`,
                 );
+            },
+            () => {
+              rm.resetDrawing(ps);
+              this.canvas.update();
+              popup.hide();
             },
           );
         }
         popup.show();
-
-        this.canvas.update();
       }),
     );
   }

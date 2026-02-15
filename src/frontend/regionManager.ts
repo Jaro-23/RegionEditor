@@ -59,4 +59,9 @@ export class RegionManager implements PointSystemWatcher {
     this.drawingRegion.reset();
     return true;
   }
+
+  public resetDrawing(pointSystem: PointSystem) {
+    this.removeGhost(pointSystem);
+    this.drawingRegion.reset();
+  }
 }

@@ -9,7 +9,7 @@ enum PointType {
   regionPoint = 0,
 }
 
-enum PopupDefType {
+enum CustomFieldType {
   string,
   number,
 }
@@ -31,14 +31,13 @@ type MouseKeyBindings = {
   stopDrawing: MouseKeySpecification;
 };
 
-type PopupFieldType = string | number;
-type PopupStruct = { [key: string]: PopupFieldType };
-type PopupDefinition = {
-  fieldName: string;
-  value: PopupFieldType;
-  displayName: string;
-  type: PopupDefType;
-}[];
+type CustomFields = {
+  [key: string]: {
+    value: string | number;
+    displayName: string;
+    type: CustomFieldType;
+  };
+};
 // Other
 type Color = {
   r: number;
@@ -53,7 +52,6 @@ export type {
   MouseKeyBindings,
   MouseKeySpecification,
   Color,
-  PopupStruct,
-  PopupDefinition,
+  CustomFields,
 };
-export { MouseKey, PointType, PopupDefType };
+export { MouseKey, PointType, CustomFieldType };

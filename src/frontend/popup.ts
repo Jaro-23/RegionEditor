@@ -1,8 +1,9 @@
-import { PopupStruct, PopupDefinition, PopupDefType } from './types.js';
+import { CustomFields, CustomFieldType } from './types.js';
 
 export class PopupElement extends HTMLElement {
-  private saveFunc: (data: PopupStruct) => void = () => {};
-  private data: PopupStruct = {};
+  private saveFunc: (fields: CustomFields) => void = () => {};
+  private cancelFunc: (fields: CustomFields) => void = () => {};
+  private fields: CustomFields = {};
 
   connectedCallback() {
     this.loadPopup(this.innerHTML);
@@ -10,47 +11,50 @@ export class PopupElement extends HTMLElement {
 
   public loadFromStruct(
     title: string,
-    definition: PopupDefinition,
-    saveFunc: (data: PopupStruct) => void,
+    fields: CustomFields,
+    saveFunc: (fields: CustomFields) => void,
+    cancelFunc: (fields: CustomFields) => void,
   ): void {
-    this.data = {};
+    this.fields = fields;
     this.saveFunc = saveFunc;
+    this.cancelFunc = cancelFunc;
 
     // Reconstruct the popup fields based of the data
     let inner: string = `<h1>${title}</h1>`;
 
     const id: string = this.getId();
-    definition.forEach((field) => {
-      this.data[field.fieldName] = field.value;
+    for (const name in this.fields) {
+      const field = this.fields[name];
       inner += `
         <div class="popup-row">
           <p>${field.displayName}:</p>
-          <input type="${this.typeToInputType(field.type)}" value="${field.value.toString()}" id="${id}-${field.fieldName}">
+          <input type="${this.typeToInputType(field.type)}" value="${field.value.toString()}" id="${id}-${name}">
         </div>
       `;
-    });
+    }
 
     // Load the new fields into the popup
     this.loadPopup(inner);
 
     // Bind functionality of each field to the data structure
-    definition.forEach((field) => {
+    for (const name in this.fields) {
+      const field = this.fields[name];
       const input: HTMLInputElement | null = document.getElementById(
-        `${id}-${field.fieldName}`,
+        `${id}-${name}`,
       ) as HTMLInputElement;
       if (!input) return; // Should never be true
       input.addEventListener('input', () => {
         const val: string = input.value.trim();
         switch (field.type) {
-          case PopupDefType.string:
-            this.data[field.fieldName] = val;
+          case CustomFieldType.string:
+            this.fields[name].value = val;
             break;
-          case PopupDefType.number:
-            this.data[field.fieldName] = parseFloat(val);
+          case CustomFieldType.number:
+            this.fields[name].value = parseFloat(val);
             break;
         }
       });
-    });
+    }
   }
 
   public showError(error: string): void {
@@ -69,11 +73,11 @@ export class PopupElement extends HTMLElement {
     this.style.display = 'none';
   }
 
-  private typeToInputType(type: PopupDefType): string {
+  private typeToInputType(type: CustomFieldType): string {
     switch (type) {
-      case PopupDefType.string:
+      case CustomFieldType.string:
         return 'text';
-      case PopupDefType.number:
+      case CustomFieldType.number:
         return 'number';
     }
     return 'text';
@@ -94,15 +98,9 @@ export class PopupElement extends HTMLElement {
     `;
 
     const cancel = document.getElementById(`cancel-${id}`);
-    if (cancel)
-      cancel.onclick = () => {
-        this.hide();
-      };
+    if (cancel) cancel.onclick = () => this.cancelFunc(this.fields);
     const save = document.getElementById(`save-${id}`);
-    if (save)
-      save.onclick = () => {
-        this.saveFunc(this.data);
-      };
+    if (save) save.onclick = () => this.saveFunc(this.fields);
   }
 
   private getId(): string {
