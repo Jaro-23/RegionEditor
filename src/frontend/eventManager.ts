@@ -1,11 +1,14 @@
 import { Canvas } from './canvas.js';
 import { PointSystem } from './pointSystem.js';
 import { RegionManager } from './regionManager.js';
+import { PopupElement } from './popup.js';
 import {
   Position,
   MouseKeyBindings,
   MouseKeySpecification,
   PointType,
+  PopupDefType,
+  PopupStruct,
 } from './types.js';
 
 export class EventManager {
@@ -40,8 +43,30 @@ export class EventManager {
         ps.stopForceDrag();
         rm.removeGhost(ps);
 
-        // TODO: Do with proper popup
-        rm.saveRegion('test', ps);
+        const popup: PopupElement = document.getElementById(
+          'global-popup',
+        ) as PopupElement;
+        if (popup) {
+          popup.loadFromStruct(
+            'Name the new region',
+            [
+              {
+                fieldName: 'name',
+                value: '',
+                displayName: 'Name',
+                type: PopupDefType.string,
+              },
+            ],
+            (data: PopupStruct) => {
+              if (rm.saveRegion(data.name, ps)) popup.hide();
+              else
+                popup.showError(
+                  `Already a region with the name: "${data.name} "`,
+                );
+            },
+          );
+        }
+        popup.show();
 
         this.canvas.update();
       }),

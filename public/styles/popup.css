@@ -1,0 +1,128 @@
+popup-modal {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  display: none;
+  align-items: center;
+  justify-content: center;
+
+  z-index: 10;
+}
+
+.popup-background {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+
+  background-color: black;
+  opacity: 0.65;
+}
+
+.popup {
+  width: 30%;
+  border: black solid 2px;
+  border-radius: 20px;
+
+  padding: 0;
+  padding-top: 5px;
+  padding-bottom: 5px;
+
+  background-color: white;
+  opacity: 1;
+  z-index: 11;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup > h1 {
+  width: 80%;
+  font-size: 30px;
+  text-align: center;
+
+  margin: 0px;
+  margin-bottom: 5px;
+}
+
+.popup-error {
+  width: 80%;
+  min-height: 25px;
+  display: none;
+
+  text-align: center;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+
+  background-color: #ef5350;
+  border: #b71c1c solid 2px;
+  border-radius: 10px;
+
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.popup-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: start;
+  width: 80%;
+  min-height: 25px;
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.popup-row > p {
+  min-width: 20%;
+  max-width: 20%;
+  min-height: 25px;
+
+  margin: 0;
+  padding-right: 5px;
+
+  text-align: end;
+  font-size: 20px;
+}
+
+.popup-row > input {
+  min-width: 65%;
+  max-width: 65%;
+  height: 20px;
+
+  margin: 0;
+  padding-right: 5px;
+
+  text-align: start;
+  font-size: 20px;
+}
+
+.popup-final-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 80%;
+  height: 25px;
+  margin: 0;
+  margin-bottom: 5px;
+}
+
+.popup-final-row > input {
+  width: 40%;
+  height: 100%;
+  cursor: pointer;
+
+  font-size: 20px;
+}
+
+.popup-final-row > input:hover {
+  font-weight: bold;
+}

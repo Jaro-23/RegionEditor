@@ -138,6 +138,7 @@ export class Canvas {
     loadImage(this.backgroundPath)
       .then((background: ImageBitmap) => {
         this.background = background;
+        this.update();
       })
       .catch((error) => {
         console.log(error);
