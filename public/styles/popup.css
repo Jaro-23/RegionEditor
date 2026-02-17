@@ -10,6 +10,7 @@ popup-modal {
   justify-content: center;
 
   z-index: 10;
+  font-family: Helvetica, sans-serif;
 }
 
 .popup-background {
@@ -29,8 +30,8 @@ popup-modal {
   border-radius: 20px;
 
   padding: 0;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  padding-top: 15px;
+  padding-bottom: 15px;
 
   background-color: white;
   opacity: 1;
@@ -58,7 +59,7 @@ popup-modal {
 
   text-align: center;
   color: white;
-  font-size: 18px;
+  font-size: 22px;
   font-weight: bold;
 
   background-color: #ef5350;
@@ -66,7 +67,7 @@ popup-modal {
   border-radius: 10px;
 
   margin: 0;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .popup-row {
@@ -75,52 +76,58 @@ popup-modal {
   align-items: center;
   justify-content: start;
   width: 80%;
-  min-height: 25px;
+  min-height: 35px;
   margin: 0;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
 .popup-row > p {
   min-width: 20%;
   max-width: 20%;
-  min-height: 25px;
+  min-height: 35px;
+  line-height: 35px;
 
   margin: 0;
   padding-right: 5px;
 
   text-align: end;
-  font-size: 20px;
+  justify-items: center;
+  font-size: 22px;
 }
 
 .popup-row > input {
   min-width: 65%;
   max-width: 65%;
-  height: 20px;
+  height: 30px;
 
   margin: 0;
   padding-right: 5px;
 
   text-align: start;
-  font-size: 20px;
+  font-size: 22px;
 }
 
 .popup-final-row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  justify-content: space-evenly;
+  justify-content: center;
   width: 80%;
-  height: 25px;
+  height: 35px;
   margin: 0;
   margin-bottom: 5px;
 }
 
 .popup-final-row > input {
-  width: 40%;
+  width: 30%;
   height: 100%;
   cursor: pointer;
+  border-radius: 10px;
 
   font-size: 20px;
+  margin: 0;
+  margin-left: 5px;
+  margin-right: 5px;
 }
 
 .popup-final-row > input:hover {

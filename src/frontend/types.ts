@@ -16,12 +16,15 @@ enum CustomFieldType {
 
 // Structs
 type Position = { x: number; y: number };
+
 type MouseKeySpecification = {
   key: MouseKey;
   ctrlKey: boolean;
 };
+
 type PointSpecification = {
   radius: number;
+  fields: CustomFields;
 };
 
 type MouseKeyBindings = {
@@ -31,13 +34,29 @@ type MouseKeyBindings = {
   stopDrawing: MouseKeySpecification;
 };
 
+type FieldValType = string | number;
 type CustomFields = {
   [key: string]: {
-    value: string | number;
+    value: FieldValType;
     displayName: string;
     type: CustomFieldType;
   };
 };
+
+type PointStruct = {
+  type: number;
+  pos: Position;
+  radius: number;
+  fields: CustomFields;
+};
+
+type RegionStruct = {
+  points: string[];
+  color: Color;
+  edgeWidth: number;
+  fields: CustomFields;
+};
+
 // Other
 type Color = {
   r: number;
@@ -52,6 +71,9 @@ export type {
   MouseKeyBindings,
   MouseKeySpecification,
   Color,
+  FieldValType,
   CustomFields,
+  PointStruct,
+  RegionStruct,
 };
 export { MouseKey, PointType, CustomFieldType };

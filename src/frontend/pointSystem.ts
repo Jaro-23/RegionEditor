@@ -1,3 +1,4 @@
+import { Communicator } from './communicator.js';
 import { Point } from './point.js';
 import { Position, PointSpecification, PointType } from './types.js';
 import { PointSystemWatcher } from './interfaces.js';
@@ -8,7 +9,10 @@ export class PointSystem {
   private forceDragging: boolean = false;
   private watchers: { [key in PointType]?: PointSystemWatcher } = {};
 
-  constructor(private pointConfig: { [key in PointType]: PointSpecification }) {
+  constructor(
+    private pointConfig: { [key in PointType]: PointSpecification },
+    private communicator: Communicator,
+  ) {
     this.points = {};
   }
 
@@ -36,10 +40,21 @@ export class PointSystem {
     while (this.formatIden(localIden) in this.points) localIden += 1;
 
     const iden = this.formatIden(localIden);
-    this.points[iden] = new Point(type, pos, this.pointConfig[type].radius);
+    this.points[iden] = new Point(
+      type,
+      pos,
+      this.pointConfig[type].radius,
+      this.pointConfig[type].fields,
+    );
 
     const watcher = this.watchers[type];
     if (!skipWatcher && watcher) watcher.onPointCreate(iden, pos);
+
+    this.communicator.sendJson('PointCreation', {
+      iden: iden,
+      data: this.points[iden].getAsStruct(),
+    });
+
     return iden;
   }
 
@@ -55,6 +70,10 @@ export class PointSystem {
 
     const watcher = this.watchers[type];
     if (watcher) watcher.onPointRemove(iden);
+
+    this.communicator.sendJson('PointDeletion', {
+      iden: iden,
+    });
   }
 
   public removePointByPos(pos: Position): void {
@@ -95,7 +114,18 @@ export class PointSystem {
   }
 
   public endDrag(): void {
-    if (!this.forceDragging) this.draggingPoint = undefined;
+    if (!this.forceDragging) {
+      for (const iden in this.points) {
+        if (this.draggingPoint == this.points[iden]) {
+          this.communicator.sendJson('PointModified', {
+            iden: iden,
+            data: this.draggingPoint,
+          });
+          return;
+        }
+      }
+      this.draggingPoint = undefined;
+    }
   }
 
   // Helpers

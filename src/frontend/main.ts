@@ -1,3 +1,4 @@
+import { Communicator } from './communicator.js';
 import { RegionManager } from './regionManager.js';
 import { PointSystem } from './pointSystem.js';
 import { Canvas } from './canvas.js';
@@ -16,6 +17,7 @@ const regionEdgeWidth: number = 4;
 const pointConfig: { [key in PointType]: PointSpecification } = {
   [PointType.regionPoint]: {
     radius: 8,
+    fields: {},
   },
 };
 
@@ -39,8 +41,16 @@ const mouseInputs: MouseKeyBindings = {
 };
 
 // Setup
-const pSys = new PointSystem(pointConfig);
-const regMan = new RegionManager(pSys, ColorDef.aqua, regionEdgeWidth);
+const comm: Communicator = new Communicator('/');
+
+const pSys = new PointSystem(pointConfig, comm);
+const regMan = new RegionManager(
+  pSys,
+  ColorDef.aqua,
+  regionEdgeWidth,
+  {},
+  comm,
+);
 
 pSys.setWatchers({ [PointType.regionPoint]: regMan });
 const canv = new Canvas(

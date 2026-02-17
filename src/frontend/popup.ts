@@ -27,7 +27,7 @@ export class PopupElement extends HTMLElement {
       const field = this.fields[name];
       inner += `
         <div class="popup-row">
-          <p>${field.displayName}:</p>
+          <p>${field.displayName}</p>
           <input type="${this.typeToInputType(field.type)}" value="${field.value.toString()}" id="${id}-${name}">
         </div>
       `;
@@ -91,8 +91,8 @@ export class PopupElement extends HTMLElement {
         <p class="popup-error" id="popup-error-${id}"></p>
         ${inner}
         <div class="popup-final-row">
-          <input type="button" value="Cancel" id="cancel-${id}">
-          <input type="button" value="Save" id="save-${id}">
+          <input type="button" style="background-color: #ef5350;" value="Cancel" id="cancel-${id}">
+          <input type="button" style="background-color: #56ae57;" value="Save" id="save-${id}">
         </div>
       </div>
     `;

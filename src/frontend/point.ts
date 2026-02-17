@@ -1,10 +1,17 @@
-import { Position, PointType } from './types.js';
+import {
+  Position,
+  PointType,
+  FieldValType,
+  CustomFields,
+  PointStruct,
+} from './types.js';
 
 export class Point {
   constructor(
     private type: PointType,
     private pos: Position = { x: 0, y: 0 },
     private radius: number = 0,
+    private fields: CustomFields = {},
   ) {}
 
   public isClicked(pos: Position): boolean {
@@ -28,5 +35,19 @@ export class Point {
 
   public getType(): PointType {
     return this.type;
+  }
+
+  public getField(field: string): FieldValType | undefined {
+    if (field in this.fields) return this.fields[field].value;
+    return undefined;
+  }
+
+  public getAsStruct(): PointStruct {
+    return {
+      type: this.type as number,
+      pos: { ...this.pos },
+      radius: this.radius,
+      fields: { ...this.fields },
+    };
   }
 }

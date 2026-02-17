@@ -1,14 +1,15 @@
 import { Point } from './point.js';
 import { PointSystem } from './pointSystem.js';
-import { Position, Color } from './types.js';
+import { Position, Color, CustomFields, RegionStruct } from './types.js';
 
 export class Region {
-  private pointsIden: string[] = [];
+  private pointIdens: string[] = [];
 
   constructor(
     private color: Color,
     private pointSystem: PointSystem,
     private edgeWidth: number,
+    private fields: CustomFields,
   ) {}
 
   public getColor() {
@@ -20,42 +21,53 @@ export class Region {
   }
 
   public getNumPoints(): number {
-    return this.pointsIden.length;
+    return this.pointIdens.length;
   }
 
   public addPoint(
     pointIden: string,
     place: number | undefined = undefined,
   ): void {
-    if (place) this.pointsIden.splice(place, 0, pointIden);
-    else this.pointsIden.push(pointIden);
+    if (place) this.pointIdens.splice(place, 0, pointIden);
+    else this.pointIdens.push(pointIden);
   }
 
   public foreachPoint(func: (pointIden: string, color: Color) => void): void {
-    this.pointsIden.forEach((pointIden) => func(pointIden, this.color));
+    this.pointIdens.forEach((pointIden) => {
+      func(pointIden, this.color);
+    });
   }
 
   public removePoint(pointIden: string): void {
-    let index = this.pointsIden.indexOf(pointIden);
+    let index = this.pointIdens.indexOf(pointIden);
     while (index >= 0) {
-      this.pointsIden.splice(index, 1);
-      index = this.pointsIden.indexOf(pointIden);
+      this.pointIdens.splice(index, 1);
+      index = this.pointIdens.indexOf(pointIden);
     }
   }
 
   public reset() {
-    this.pointsIden = [];
+    this.pointIdens = [];
+  }
+
+  public getAsStruct(): RegionStruct {
+    return {
+      points: Object.assign([], this.pointIdens),
+      color: { ...this.color },
+      edgeWidth: this.edgeWidth,
+      fields: { ...this.fields },
+    };
   }
 
   public clickedOnEdge(pos: Position): number {
-    for (let idenIndex = 0; idenIndex < this.pointsIden.length; idenIndex++) {
+    for (let idenIndex = 0; idenIndex < this.pointIdens.length; idenIndex++) {
       const p1: Point | undefined = this.pointSystem.getPoint(
-        this.pointsIden[idenIndex],
+        this.pointIdens[idenIndex],
       );
       if (!p1) continue;
       const pos1: Position = p1.getPosition();
       const p2: Point | undefined = this.pointSystem.getPoint(
-        this.pointsIden[(idenIndex + 1) % this.pointsIden.length],
+        this.pointIdens[(idenIndex + 1) % this.pointIdens.length],
       );
       if (!p2) continue;
       const pos2: Position = p2.getPosition();

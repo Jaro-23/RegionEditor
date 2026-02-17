@@ -1,7 +1,8 @@
 import { PointSystemWatcher } from './interfaces.js';
 import { Region } from './region.js';
+import { Communicator } from './communicator.js';
 import { PointSystem } from './pointSystem.js';
-import { Position, Color, PointType } from './types.js';
+import { Position, Color, PointType, CustomFields } from './types.js';
 import { ColorList } from './constants.js';
 
 export class RegionManager implements PointSystemWatcher {
@@ -14,11 +15,14 @@ export class RegionManager implements PointSystemWatcher {
     private pointSystem: PointSystem,
     drawColor: Color,
     private edgeWidth: number,
+    private regionFields: CustomFields,
+    private communicator: Communicator,
   ) {
     this.drawingRegion = new Region(
       drawColor,
       this.pointSystem,
       this.edgeWidth,
+      {},
     );
   }
 
@@ -40,15 +44,13 @@ export class RegionManager implements PointSystemWatcher {
         const region: Region = this.regions[name];
         const index = region.clickedOnEdge(pos);
         if (index >= 0) {
-          console.log(index);
-          const iden = this.pointSystem.createPoint(
-            pos,
-            PointType.regionPoint,
-            true,
-          );
           // +1 because the given index represents the line from index to index+1
           // We want to add the point in between
           region.addPoint(iden, index + 1);
+          this.communicator.sendJson('RegionModified', {
+            name: name,
+            data: region.getAsStruct(),
+          });
           return;
         }
       }
@@ -70,6 +72,10 @@ export class RegionManager implements PointSystemWatcher {
     for (const name in this.regions) {
       const region: Region = this.regions[name];
       region.removePoint(iden);
+      if (region.getNumPoints() < 3) {
+        delete this.regions[name];
+        this.communicator.sendJson('RegionDeletion', { name: name });
+      }
     }
   }
 
@@ -87,12 +93,17 @@ export class RegionManager implements PointSystemWatcher {
       ColorList[this.colorIndex],
       this.pointSystem,
       this.edgeWidth,
+      this.regionFields,
     );
     this.colorIndex = (this.colorIndex + 1) % ColorList.length;
     this.drawingRegion.foreachPoint((pointIden: string) =>
       this.regions[name].addPoint(pointIden),
     );
     this.drawingRegion.reset();
+    this.communicator.sendJson('RegionModified', {
+      name: name,
+      data: this.regions[name].getAsStruct(),
+    });
     return true;
   }
 
@@ -109,6 +120,9 @@ export class RegionManager implements PointSystemWatcher {
 
   public resetDrawing() {
     this.removeGhost();
+    const temp: string[] = [];
+    this.drawingRegion.foreachPoint((iden: string) => temp.push(iden));
+    temp.forEach((iden) => this.pointSystem.removePoint(iden));
     this.drawingRegion.reset();
   }
 }
