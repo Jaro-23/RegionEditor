@@ -23,4 +23,8 @@ export class PointService {
   public remove(iden: string) {
     if (iden in this.points) delete this.points[iden];
   }
+
+  public getAll() {
+    return this.points;
+  }
 }

@@ -23,4 +23,8 @@ export class RegionService {
   public remove(name: string) {
     if (name in this.regions) delete this.regions[name];
   }
+
+  public getAll() {
+    return this.regions;
+  }
 }

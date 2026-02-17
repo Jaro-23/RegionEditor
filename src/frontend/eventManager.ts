@@ -6,6 +6,8 @@ import {
   Position,
   MouseKeyBindings,
   MouseKeySpecification,
+  KeyCombo,
+  PointSpecification,
   PointType,
   CustomFields,
   CustomFieldType,
@@ -15,6 +17,7 @@ export class EventManager {
   constructor(
     private canvas: Canvas,
     private mouseKeyBindings: MouseKeyBindings,
+    private pointConfig: { [key in PointType]: PointSpecification },
   ) {
     // Disable the context menu
     document.addEventListener('contextmenu', (e) => e.preventDefault());
@@ -87,12 +90,20 @@ export class EventManager {
 
   private psEvents() {
     const ps: PointSystem = this.canvas.getPointSystem();
+    const rm: RegionManager = this.canvas.getRegionManager();
     this.canvas.addEvent(
       'mousedown',
       this.mouseWrapper(
         this.mouseKeyBindings.createPoint,
         (event: MouseEvent) => {
           const pos: Position = this.canvas.getMousePos(event);
+          const type: PointType | undefined = rm.isDrawing()
+            ? PointType.regionPoint
+            : this.getPointType(event);
+          console.log(type);
+
+          if (type == undefined) return;
+
           ps.createPoint(pos, PointType.regionPoint);
           this.canvas.update();
         },
@@ -131,5 +142,19 @@ export class EventManager {
         this.canvas.update();
       }),
     );
+  }
+
+  private getPointType(event: MouseEvent): PointType | undefined {
+    for (const typeStr in this.pointConfig) {
+      const option = parseInt(typeStr) as PointType;
+      const spec: PointSpecification = this.pointConfig[option];
+      if (
+        (Object.keys(spec.keyCombo) as (keyof KeyCombo)[]).every(
+          (key) => event[key] === spec.keyCombo[key],
+        )
+      )
+        return option;
+    }
+    return undefined;
   }
 }

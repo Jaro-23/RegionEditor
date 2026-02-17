@@ -3,7 +3,7 @@ import { Point } from './point.js';
 import { PointSystem } from './pointSystem.js';
 import { Region } from './region.js';
 import { RegionManager } from './regionManager.js';
-import { Position, Color } from './types.js';
+import { Position, Color, PointSpecification } from './types.js';
 
 export class Canvas {
   private context: CanvasRenderingContext2D;
@@ -83,11 +83,22 @@ export class Canvas {
   }
 
   private drawPoint(point: Point, color: Color = { r: 0, g: 0, b: 0 }) {
+    const spec: PointSpecification = point.getSpecification();
     const pos: Position = point.getPosition();
-    this.context.fillStyle = this.getColorString(color);
-    this.context.beginPath();
-    this.context.arc(pos.x, pos.y, point.getRadius(), 0, 2 * Math.PI);
-    this.context.fill();
+    if (spec.image) {
+      this.context.drawImage(
+        spec.image,
+        pos.x - spec.radius,
+        pos.y - spec.radius,
+        spec.radius * 2,
+        spec.radius * 2,
+      );
+    } else {
+      this.context.fillStyle = this.getColorString(color);
+      this.context.beginPath();
+      this.context.arc(pos.x, pos.y, spec.radius, 0, 2 * Math.PI);
+      this.context.fill();
+    }
   }
 
   private drawRegion(region: Region) {

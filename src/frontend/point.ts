@@ -2,23 +2,26 @@ import {
   Position,
   PointType,
   FieldValType,
-  CustomFields,
+  PointSpecification,
   PointStruct,
 } from './types.js';
 
 export class Point {
+  private specification: PointSpecification;
+
   constructor(
     private type: PointType,
     private pos: Position = { x: 0, y: 0 },
-    private radius: number = 0,
-    private fields: CustomFields = {},
-  ) {}
+    specification: PointSpecification,
+  ) {
+    this.specification = { ...specification };
+  }
 
   public isClicked(pos: Position): boolean {
     const dx = pos.x - this.pos.x;
     const dy = pos.y - this.pos.y;
     const dist = dx * dx + dy * dy;
-    return dist < this.radius * this.radius;
+    return dist < this.specification.radius * this.specification.radius;
   }
 
   public setPosition(pos: Position): void {
@@ -29,8 +32,8 @@ export class Point {
     return this.pos;
   }
 
-  public getRadius(): number {
-    return this.radius;
+  public getSpecification(): PointSpecification {
+    return this.specification;
   }
 
   public getType(): PointType {
@@ -38,7 +41,8 @@ export class Point {
   }
 
   public getField(field: string): FieldValType | undefined {
-    if (field in this.fields) return this.fields[field].value;
+    if (field in this.specification.fields)
+      return this.specification.fields[field].value;
     return undefined;
   }
 
@@ -46,8 +50,7 @@ export class Point {
     return {
       type: this.type as number,
       pos: { ...this.pos },
-      radius: this.radius,
-      fields: { ...this.fields },
+      specification: { ...this.specification },
     };
   }
 }

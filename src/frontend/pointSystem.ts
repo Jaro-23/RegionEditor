@@ -17,9 +17,19 @@ export class PointSystem {
   constructor(
     private pointConfig: { [key in PointType]: PointSpecification },
     private communicator: Communicator,
+    data: { [key: string]: PointStruct } = {},
   ) {
     this.points = {};
     this.setupEvents();
+
+    for (const iden in data) {
+      const pointDef: PointStruct = data[iden];
+      this.points[iden] = new Point(
+        pointDef.type as PointType,
+        pointDef.pos,
+        pointDef.specification,
+      );
+    }
   }
 
   public setWatchers(watchers: {
@@ -46,12 +56,7 @@ export class PointSystem {
     while (this.formatIden(localIden) in this.points) localIden += 1;
 
     const iden = this.formatIden(localIden);
-    this.points[iden] = new Point(
-      type,
-      pos,
-      this.pointConfig[type].radius,
-      this.pointConfig[type].fields,
-    );
+    this.points[iden] = new Point(type, pos, this.pointConfig[type]);
 
     const watcher = this.watchers[type];
     if (!skipWatcher && watcher) watcher.onPointCreate(iden, pos);
@@ -145,8 +150,7 @@ export class PointSystem {
         this.points[iden] = new Point(
           data.data.type as PointType,
           data.data.pos,
-          data.data.radius,
-          data.data.fields,
+          data.data.specification,
         );
         return true;
       },
@@ -161,8 +165,7 @@ export class PointSystem {
         this.points[iden] = new Point(
           data.data.type as PointType,
           data.data.pos,
-          data.data.radius,
-          data.data.fields,
+          data.data.specification,
         );
         return true;
       },

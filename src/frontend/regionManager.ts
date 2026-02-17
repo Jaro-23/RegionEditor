@@ -23,6 +23,7 @@ export class RegionManager implements PointSystemWatcher {
     private edgeWidth: number,
     private regionFields: CustomFields,
     private communicator: Communicator,
+    data: { [key: string]: RegionStruct } = {},
   ) {
     this.drawingRegion = new Region(
       drawColor,
@@ -31,6 +32,16 @@ export class RegionManager implements PointSystemWatcher {
       {},
     );
     this.setupEvents();
+    for (const name in data) {
+      const regionDef: RegionStruct = data[name];
+      this.regions[name] = new Region(
+        regionDef.color,
+        this.pointSystem,
+        regionDef.edgeWidth,
+        regionDef.fields,
+      );
+      regionDef.points.forEach((iden) => this.regions[name].addPoint(iden));
+    }
   }
 
   public foreach(func: (region: Region) => void): void {

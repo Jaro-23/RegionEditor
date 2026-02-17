@@ -22,9 +22,18 @@ type MouseKeySpecification = {
   ctrlKey: boolean;
 };
 
+type KeyCombo = {
+  ctrlKey: boolean;
+  shiftKey: boolean;
+  altKey: boolean;
+  metaKey: boolean;
+};
+
 type PointSpecification = {
+  keyCombo: KeyCombo;
   radius: number;
   fields: CustomFields;
+  image?: ImageBitmap;
 };
 
 type MouseKeyBindings = {
@@ -46,8 +55,7 @@ type CustomFields = {
 type PointStruct = {
   type: number;
   pos: Position;
-  radius: number;
-  fields: CustomFields;
+  specification: PointSpecification;
 };
 
 type RegionStruct = {
@@ -78,6 +86,7 @@ type Color = {
 
 export type {
   Position,
+  KeyCombo,
   PointSpecification,
   MouseKeyBindings,
   MouseKeySpecification,
