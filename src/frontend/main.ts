@@ -59,4 +59,5 @@ const canv = new Canvas(
   regMan,
   'images/map.png',
 );
+comm.setCanvas(canv);
 new EventManager(canv, mouseInputs);

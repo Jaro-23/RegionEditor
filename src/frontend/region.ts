@@ -24,6 +24,10 @@ export class Region {
     return this.pointIdens.length;
   }
 
+  public getWidth(): number {
+    return this.edgeWidth;
+  }
+
   public addPoint(
     pointIden: string,
     place: number | undefined = undefined,

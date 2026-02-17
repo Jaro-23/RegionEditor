@@ -122,8 +122,7 @@ export class EventManager {
     );
     this.canvas.addEvent('mousemove', (event: MouseEvent) => {
       const pos: Position = this.canvas.getMousePos(event);
-      ps.draggingLogic(pos);
-      this.canvas.update();
+      if (ps.draggingLogic(pos)) this.canvas.update();
     });
     this.canvas.addEvent(
       'mouseup',

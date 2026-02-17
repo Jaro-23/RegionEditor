@@ -2,7 +2,13 @@ import { PointSystemWatcher } from './interfaces.js';
 import { Region } from './region.js';
 import { Communicator } from './communicator.js';
 import { PointSystem } from './pointSystem.js';
-import { Position, Color, PointType, CustomFields } from './types.js';
+import {
+  Position,
+  Color,
+  PointType,
+  CustomFields,
+  RegionStruct,
+} from './types.js';
 import { ColorList } from './constants.js';
 
 export class RegionManager implements PointSystemWatcher {
@@ -24,10 +30,7 @@ export class RegionManager implements PointSystemWatcher {
       this.edgeWidth,
       {},
     );
-  }
-
-  public getEdgeWidth() {
-    return this.edgeWidth;
+    this.setupEvents();
   }
 
   public foreach(func: (region: Region) => void): void {
@@ -100,7 +103,7 @@ export class RegionManager implements PointSystemWatcher {
       this.regions[name].addPoint(pointIden),
     );
     this.drawingRegion.reset();
-    this.communicator.sendJson('RegionModified', {
+    this.communicator.sendJson('RegionCreation', {
       name: name,
       data: this.regions[name].getAsStruct(),
     });
@@ -124,5 +127,50 @@ export class RegionManager implements PointSystemWatcher {
     this.drawingRegion.foreachPoint((iden: string) => temp.push(iden));
     temp.forEach((iden) => this.pointSystem.removePoint(iden));
     this.drawingRegion.reset();
+  }
+
+  private setupEvents() {
+    this.communicator.subscribeMessage(
+      'RegionCreation',
+      (data: { name: string; data: RegionStruct }) => {
+        const name: string = data.name;
+        if (name in this.regions) return false;
+        this.regions[name] = new Region(
+          data.data.color,
+          this.pointSystem,
+          data.data.edgeWidth,
+          data.data.fields,
+        );
+        data.data.points.forEach((iden) => this.regions[name].addPoint(iden));
+        return true;
+      },
+    );
+
+    this.communicator.subscribeMessage(
+      'RegionModified',
+      (data: { name: string; data: RegionStruct }) => {
+        const name: string = data.name;
+        if (!(name in this.regions)) return false;
+        delete this.regions[name];
+        this.regions[name] = new Region(
+          data.data.color,
+          this.pointSystem,
+          data.data.edgeWidth,
+          data.data.fields,
+        );
+        data.data.points.forEach((iden) => this.regions[name].addPoint(iden));
+        return true;
+      },
+    );
+
+    this.communicator.subscribeMessage(
+      'RegionDeletion',
+      (data: { name: string }) => {
+        const name: string = data.name;
+        if (!(name in this.regions)) return false;
+        delete this.regions[name];
+        return true;
+      },
+    );
   }
 }

@@ -1,6 +1,11 @@
 import { Communicator } from './communicator.js';
 import { Point } from './point.js';
-import { Position, PointSpecification, PointType } from './types.js';
+import {
+  Position,
+  PointSpecification,
+  PointType,
+  PointStruct,
+} from './types.js';
 import { PointSystemWatcher } from './interfaces.js';
 
 export class PointSystem {
@@ -14,6 +19,7 @@ export class PointSystem {
     private communicator: Communicator,
   ) {
     this.points = {};
+    this.setupEvents();
   }
 
   public setWatchers(watchers: {
@@ -63,7 +69,7 @@ export class PointSystem {
     return undefined;
   }
 
-  public removePoint(iden: string) {
+  public removePoint(iden: string, updateServer: boolean = true) {
     if (!(iden in this.points)) return;
     const type: PointType = this.points[iden].getType();
     delete this.points[iden];
@@ -71,6 +77,7 @@ export class PointSystem {
     const watcher = this.watchers[type];
     if (watcher) watcher.onPointRemove(iden);
 
+    if (!updateServer) return;
     this.communicator.sendJson('PointDeletion', {
       iden: iden,
     });
@@ -108,9 +115,10 @@ export class PointSystem {
     }
   }
 
-  public draggingLogic(pos: Position): void {
-    if (!this.draggingPoint) return;
+  public draggingLogic(pos: Position): boolean {
+    if (!this.draggingPoint) return false;
     this.draggingPoint.setPosition(pos);
+    return true;
   }
 
   public endDrag(): void {
@@ -119,13 +127,56 @@ export class PointSystem {
         if (this.draggingPoint == this.points[iden]) {
           this.communicator.sendJson('PointModified', {
             iden: iden,
-            data: this.draggingPoint,
+            data: this.draggingPoint.getAsStruct(),
           });
           return;
         }
       }
       this.draggingPoint = undefined;
     }
+  }
+
+  private setupEvents() {
+    this.communicator.subscribeMessage(
+      'PointCreation',
+      (data: { iden: string; data: PointStruct }) => {
+        const iden: string = data.iden;
+        if (iden in this.points) return false;
+        this.points[iden] = new Point(
+          data.data.type as PointType,
+          data.data.pos,
+          data.data.radius,
+          data.data.fields,
+        );
+        return true;
+      },
+    );
+
+    this.communicator.subscribeMessage(
+      'PointModified',
+      (data: { iden: string; data: PointStruct }) => {
+        const iden: string = data.iden;
+        if (!(iden in this.points)) return false;
+        delete this.points[iden];
+        this.points[iden] = new Point(
+          data.data.type as PointType,
+          data.data.pos,
+          data.data.radius,
+          data.data.fields,
+        );
+        return true;
+      },
+    );
+
+    this.communicator.subscribeMessage(
+      'PointDeletion',
+      (data: { iden: string; data: PointStruct }) => {
+        const iden: string = data.iden;
+        if (!(iden in this.points)) return false;
+        this.removePoint(iden, false);
+        return true;
+      },
+    );
   }
 
   // Helpers

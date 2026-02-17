@@ -57,6 +57,17 @@ type RegionStruct = {
   fields: CustomFields;
 };
 
+type PointJson = {
+  iden: string;
+  data?: PointStruct;
+};
+
+type RegionJson = {
+  name: string;
+  data?: RegionStruct;
+};
+type SendJsonType = PointJson | RegionJson;
+
 // Other
 type Color = {
   r: number;
@@ -75,5 +86,8 @@ export type {
   CustomFields,
   PointStruct,
   RegionStruct,
+  PointJson,
+  RegionJson,
+  SendJsonType,
 };
 export { MouseKey, PointType, CustomFieldType };
